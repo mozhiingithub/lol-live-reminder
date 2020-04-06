@@ -1,15 +1,15 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	"os/exec"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -62,19 +62,28 @@ func main() {
 		}
 	}
 
-	// 上一场比赛已结束，发出铃声和文字提醒
-	log.Println("预约赛事即将开赛。按任意键回车即可关闭铃声。")
-	c := make(chan int)
-	go ring(c)
-	reader := bufio.NewReader(os.Stdin)
-	reader.ReadLine()
+	// 上一场比赛已结束，发出提醒
+	log.Println("预约赛事即将开赛。")
 
-	// 收到任意键后，关闭铃声
-	close(c)
+	// 判断程序所在平台，使用响应的方式弹出提醒文本
+	sys := runtime.GOOS
+	var cmd string
+	switch sys {
+	case "linux":
+		{
+			cmd = "xdg-open"
+		}
+	case "windows":
+		{
+			cmd = "notepad"
+		}
+	default:
+		{
+			return
+		}
+	}
+	exec.Command(cmd, "reminder.txt").Start()
 
-	// c := make(chan int)
-	// go getEnd(c)
-	// ring(c)
 }
 
 // 检查错误
@@ -83,21 +92,3 @@ func errorCheck(e error) {
 		panic(e)
 	}
 }
-
-// 响铃函数，在通道c被关闭之前，以每秒一次的频率响铃
-func ring(c chan int) {
-	for {
-		fmt.Print("\a")
-		if _, ok := <-c; !ok {
-			break
-		}
-		time.Sleep(time.Second)
-	}
-}
-
-// func getEnd(c chan int) {
-// 	log.Println("按任意键回车即可关闭铃声。")
-// 	reader := bufio.NewReader(os.Stdin)
-// 	reader.ReadLine()
-// 	close(c)
-// }
