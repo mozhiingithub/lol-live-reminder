@@ -45,6 +45,8 @@ func main() {
 	// 生成前一场的网址,前一场的标识码为指定赛事标识码减1
 	exURL := fmt.Sprintf("https://m.wanplus.com/schedule/%d.html", codeInt-1)
 
+	exURL = "http://localhost:8000/not-end"
+
 	// 在规定的时间间隔内，爬取指定网页源码
 	for {
 		// 获取源码
@@ -82,7 +84,7 @@ func main() {
 			return
 		}
 	}
-	exec.Command(cmd, "reminder.txt").Start()
+	exec.Command(cmd, "remind.txt").Start()
 
 }
 
